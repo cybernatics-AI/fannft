@@ -43,6 +43,10 @@
         (
             (nft-id (+ (var-get total-nfts) u1))
         )
+        ;; Validate metadata length
+        (asserts! (<= (len metadata) u256) (err u407))  ;; Error if metadata exceeds 256 characters
+        ;; Validate royalty percentage (0-100)
+        (asserts! (<= royalty-percentage u100) (err u408)) ;; Error if royalty percentage is above 100
         ;; Check if the tier is valid
         (asserts! (<= tier MAX-TIER) (err u400))
         ;; Check if the recipient is not the zero address
@@ -105,6 +109,12 @@
         (
             (current-owner (unwrap! (map-get? nft-owners { nft-id: nft-id }) (err u404)))
         )
+        ;; Validate that the NFT exists
+        (asserts! (<= nft-id (var-get total-nfts)) (err u404))
+        ;; Validate that the lease duration is greater than 0
+        (asserts! (> lease-duration u0) (err u409))
+        ;; Validate that lessee is not the zero address
+        (asserts! (not (is-eq lessee 'SP000000000000000000002Q6VF78)) (err u401))
         ;; Verify owner is the transaction sender
         (asserts! (is-eq tx-sender (get owner current-owner)) (err u403))
         ;; Set leasing information
